@@ -1,0 +1,21 @@
+[
+	{
+		"operation": "shift",
+		"spec": {
+			"productId": "productId",
+			"sellerId": "sellerId",
+			"title": "title",
+			"manufacturer": "manufacturer",
+			"isLowQuantity": "isLowQuantity",
+			"isSoldOut": "isSoldOut",
+			"isBackorder": "isBackorder",
+			"metafields": "metafields",
+			"requiresShipping": "requiresShipping",
+			"isVisible": "isVisible",
+			"publishedAt": "publishedAt.date",
+			"createdAt": "createdAt.date",
+			"updatedAt": "updatedAt.date",
+			"workflowStatus": "workflow.status"
+		}
+	}
+]
