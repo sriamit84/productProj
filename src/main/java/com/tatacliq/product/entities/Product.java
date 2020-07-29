@@ -16,6 +16,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -27,26 +28,35 @@ public class Product {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long productId;
 
+	@NotNull(message = "sellerId cannot be null")
 	private String sellerId;
 
+	@NotNull(message = "title cannot be null")
 	private String title;
 
+	@NotNull(message = "manufacturer cannot be null")
 	private String manufacturer;
 
+	@NotNull(message = "isLowQuality cannot be null")
 	private Boolean isLowQuantity;
 
+	@NotNull(message = "isSoldOut cannot be null")
 	private Boolean isSoldOut;
 
+	@NotNull(message = "isBackOrder cannot be null")
 	private Boolean isBackorder;
 
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinColumn(name = "metafieldId")
 	private List<MetaField> metafields;
 
+	@NotNull(message = "requiresShipping cannot be null")
 	private Boolean requiresShipping;
 
+	@NotNull(message = "isVisible cannot be null")
 	private Boolean isVisible;
 
+	@NotNull(message = "publishedAt cannot be null")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date publishedAt;
 
@@ -56,6 +66,7 @@ public class Product {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date updatedAt;
 
+	@NotNull(message = "workflowStatus cannot be null")
 	private String workflowStatus;
 
 	@OneToOne(cascade = {CascadeType.ALL})
@@ -184,5 +195,16 @@ public class Product {
 	public void setProductPrice(ProductPrice productPrice) {
 		this.productPrice = productPrice;
 	}
+
+	@Override
+	public String toString() {
+		return "Product [productId=" + productId + ", sellerId=" + sellerId + ", title=" + title + ", manufacturer="
+				+ manufacturer + ", isLowQuantity=" + isLowQuantity + ", isSoldOut=" + isSoldOut + ", isBackorder="
+				+ isBackorder + ", metafields=" + metafields + ", requiresShipping=" + requiresShipping + ", isVisible="
+				+ isVisible + ", publishedAt=" + publishedAt + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt
+				+ ", workflowStatus=" + workflowStatus + ", productPrice=" + productPrice + "]";
+	}
+	
+	
 
 }

@@ -16,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -63,13 +65,14 @@ public class ProductServiceApplicationTests extends AbstractTest {
 		product.setPublishedAt(new Date());
 		product.setCreatedAt(new Date());
 		product.setWorkflowStatus("new");
-
+		ProductResponse productResponse= new ProductResponse().setItem(product);
+		
 		String json = mapToJson(product);
-		ProductResponse productResponse = new ProductResponse(product, null);
-		when(productController.saveProduct(product)).thenReturn(productResponse);
+		ResponseEntity<ProductResponse> productResponseEntity = new ResponseEntity<ProductResponse>(productResponse,HttpStatus.CREATED);
+		when(productController.saveProduct(product)).thenReturn(productResponseEntity);
 		mockMvc.perform(
-				MockMvcRequestBuilders.post("/products").contentType(MediaType.APPLICATION_JSON_VALUE).content(json))
-				.andExpect(status().isOk());
+				MockMvcRequestBuilders.post("/api/v1/products").contentType(MediaType.APPLICATION_JSON_VALUE).content(json))
+				.andExpect(status().isCreated());
 	}
 
 	@Test
@@ -95,7 +98,8 @@ public class ProductServiceApplicationTests extends AbstractTest {
 		product.setPublishedAt(new Date());
 		product.setCreatedAt(new Date());
 		product.setWorkflowStatus("new");
-		ProductResponse productResponse = new ProductResponse(product, null);
+		ResponseEntity<ProductResponse> productResponse = new ResponseEntity<ProductResponse>(HttpStatus.OK);
+		productResponse.getBody().setItem(product);
 		when(productController.getProductDetails(1L)).thenReturn(productResponse);
 		mockMvc.perform(MockMvcRequestBuilders.get("/products/1")).andExpect(status().isOk()).andExpect(status().isOk())
 				.andExpect(jsonPath("$.product.sellerId").value(1));
@@ -126,7 +130,8 @@ public class ProductServiceApplicationTests extends AbstractTest {
 		product.setPublishedAt(new Date());
 		product.setCreatedAt(new Date());
 		product.setWorkflowStatus("new");
-		ProductResponse productResponse = new ProductResponse(product, null);
+		ResponseEntity<ProductResponse> productResponse = new ResponseEntity<ProductResponse>(HttpStatus.OK);
+		productResponse.getBody().setItem(product);
 		when(productController.getProductDetails(1L)).thenReturn(productResponse);
 
 		String json = mapToJson(product);
@@ -148,8 +153,10 @@ public class ProductServiceApplicationTests extends AbstractTest {
 		productPrice.setRange("10-105");
 		product.setProductPrice(productPrice);
 		String json = mapToJson(product);
-		ProductResponse productResponse = new ProductResponse(product, null);
-		when(productPriceController.saveProductPrice(1L, productPrice)).thenReturn(productResponse);
+		ResponseEntity<ProductResponse> productResponse = new ResponseEntity<ProductResponse>(HttpStatus.CREATED);
+		productResponse.getBody().setItem(product);
+		when(productPriceController.saveProductPrice(1L, productPrice))
+				.thenReturn(productResponse);
 		mockMvc.perform(MockMvcRequestBuilders.post("/products/1/price").contentType(MediaType.APPLICATION_JSON_VALUE)
 				.content(json));
 	}
@@ -182,8 +189,8 @@ public class ProductServiceApplicationTests extends AbstractTest {
 		productPrice.setRange("10-105");
 		product.setProductPrice(productPrice);
 
-		ProductResponse productResponse = new ProductResponse(product, null);
-
+		ResponseEntity<ProductResponse> productResponse = new ResponseEntity<ProductResponse>(HttpStatus.OK);
+		productResponse.getBody().setItem(product);
 		when(productPriceController.getProductPrice(1L)).thenReturn(productResponse);
 		mockMvc.perform(MockMvcRequestBuilders.get("/products/1/price")).andExpect(status().isOk())
 				.andExpect(jsonPath("$.product.productPrice.min").value(10.90));

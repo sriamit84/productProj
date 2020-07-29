@@ -6,7 +6,6 @@ public class ErrorMessage {
 	}
 
 	public ErrorMessage(String errorCode, String errorMessage) {
-		super();
 		this.errorCode = errorCode;
 		this.errorMessage = errorMessage;
 	}

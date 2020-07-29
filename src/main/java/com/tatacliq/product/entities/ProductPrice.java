@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -15,10 +16,13 @@ public class ProductPrice {
 	@JsonIgnore
 	private Long id;
 
+	@NotNull(message = "range cannot be null")
 	private String range;
 
+	@NotNull(message = "min cannot be null")
 	private Double min;
 
+	@NotNull(message = "max cannot be null")
 	private Double max;
 
 	public Long getId() {
