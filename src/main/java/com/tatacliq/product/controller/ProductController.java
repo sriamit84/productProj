@@ -102,13 +102,23 @@ public class ProductController {
 		try {
 			savedProduct = productService.saveProduct(product);
 
-			productResponse.setStatus(ResponseStatus.SUCCESS).setItem(savedProduct);
-			ServletUriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentRequestUri();
-			builder.path(File.separator + savedProduct.getProductId().toString());
-			URI location = builder.build().toUri();
-			long endTime = System.currentTimeMillis();
-			logger.info("END: saveProduct Service is completed in " + (endTime - startTime) + " ms");
-			return ResponseEntity.created(location).body(productResponse);
+			if (savedProduct != null) {
+				ServletUriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentRequestUri();
+				builder.path(File.separator + savedProduct.getProductId().toString());
+				URI location = builder.build().toUri();
+				long endTime = System.currentTimeMillis();
+				logger.info("END: saveProduct Service is completed in " + (endTime - startTime) + " ms");
+				productResponse.setStatus(ResponseStatus.SUCCESS).setItem(savedProduct);
+				return ResponseEntity.created(location).body(productResponse);
+			} else {
+				productResponse.addErrorMessage(
+						new ErrorMessage(HTTPStatus.INTERNAL_SERVER_ERROR.getCode(), messageSource.getMessage(
+								Constants.PRODUCT_NOT_CREATED, new Object[] { product.getTitle() }, Locale.ENGLISH)));
+				logger.error("Error when called saveProduct Service, updated product is null");
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(productResponse);
+
+			}
+
 		} catch (ProductException e) {
 			logger.error(e.getMessage());
 			productResponse.addErrorMessage(new ErrorMessage(HTTPStatus.INTERNAL_SERVER_ERROR.getCode(), messageSource
