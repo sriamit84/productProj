@@ -69,7 +69,7 @@ public class Product {
 	@NotNull(message = "workflowStatus cannot be null")
 	private String workflowStatus;
 
-	@OneToOne(cascade = {CascadeType.ALL})
+	@OneToOne(cascade = {CascadeType.ALL},fetch = FetchType.LAZY)
 	@PrimaryKeyJoinColumn
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private ProductPrice productPrice;

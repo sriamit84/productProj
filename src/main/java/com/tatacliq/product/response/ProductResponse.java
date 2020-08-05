@@ -1,7 +1,6 @@
 package com.tatacliq.product.response;
 
 import com.tatacliq.product.entities.Data;
-import com.tatacliq.product.entities.HTTPStatus;
 import com.tatacliq.product.entities.Product;
 import com.tatacliq.product.entities.ResponseStatus;
 

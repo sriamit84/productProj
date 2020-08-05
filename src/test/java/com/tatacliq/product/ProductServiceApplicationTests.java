@@ -1,8 +1,9 @@
 package com.tatacliq.product;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,7 +20,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.tatacliq.product.controller.ProductController;
@@ -70,9 +74,99 @@ public class ProductServiceApplicationTests extends AbstractTest {
 		String json = mapToJson(product);
 		ResponseEntity<ProductResponse> productResponseEntity = new ResponseEntity<ProductResponse>(productResponse,HttpStatus.CREATED);
 		when(productController.saveProduct(product)).thenReturn(productResponseEntity);
-		mockMvc.perform(
-				MockMvcRequestBuilders.post("/api/v1/products").contentType(MediaType.APPLICATION_JSON_VALUE).content(json))
-				.andExpect(status().isCreated());
+		
+	    RequestBuilder requestBuilder = MockMvcRequestBuilders
+	            .post("/api/v1/products")
+	            .accept(MediaType.APPLICATION_JSON)
+	            .content(json)
+	            .contentType(MediaType.APPLICATION_JSON);
+
+	    MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+
+	    MockHttpServletResponse response = result.getResponse();
+
+	    assertEquals(HttpStatus.OK.value(), response.getStatus());
+	}
+	
+	@Test
+	@Order(1)
+	public void createProductWithValidationError() throws Exception {
+		Product product = new Product();
+		product.setTitle("Test");
+		product.setManufacturer("Test");
+		product.setIsLowQuantity(false);
+		product.setIsBackorder(false);
+		product.setIsSoldOut(false);
+		MetaField metaField = new MetaField();
+		metaField.setKey("1");
+		metaField.setValue("Test Value");
+		List<MetaField> metaFields = new ArrayList<MetaField>();
+		metaFields.add(metaField);
+		product.setMetafields(metaFields);
+
+		product.setRequiresShipping(false);
+		product.setIsVisible(true);
+		product.setPublishedAt(new Date());
+		product.setCreatedAt(new Date());
+		product.setWorkflowStatus("new");
+		ProductResponse productResponse= new ProductResponse().setItem(product);
+		
+		String json = mapToJson(product);
+		ResponseEntity<ProductResponse> productResponseEntity = new ResponseEntity<ProductResponse>(productResponse,HttpStatus.INTERNAL_SERVER_ERROR);
+		when(productController.saveProduct(product)).thenReturn(productResponseEntity);
+		
+	    RequestBuilder requestBuilder = MockMvcRequestBuilders
+	            .post("/api/v1/products")
+	            .accept(MediaType.APPLICATION_JSON)
+	            .content(json)
+	            .contentType(MediaType.APPLICATION_JSON);
+
+	    MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+
+	    MockHttpServletResponse response = result.getResponse();
+
+	    assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+	}
+	
+	@Test
+	@Order(1)
+	public void createProductWithValidation() throws Exception {
+		Product product = new Product();
+		product.setSellerId("1");
+		product.setTitle("Test");
+		product.setManufacturer("Test");
+		product.setIsLowQuantity(false);
+		product.setIsBackorder(false);
+		product.setIsSoldOut(false);
+		MetaField metaField = new MetaField();
+		metaField.setKey("1");
+		metaField.setValue("Test Value");
+		List<MetaField> metaFields = new ArrayList<MetaField>();
+		metaFields.add(metaField);
+		product.setMetafields(metaFields);
+
+		product.setRequiresShipping(false);
+		product.setIsVisible(true);
+		product.setPublishedAt(new Date());
+		product.setCreatedAt(new Date());
+		product.setWorkflowStatus("new");
+		ProductResponse productResponse= new ProductResponse().setItem(product);
+		
+		String json = mapToJson(product);
+		ResponseEntity<ProductResponse> productResponseEntity = new ResponseEntity<ProductResponse>(productResponse,HttpStatus.CREATED);
+		when(productController.saveProduct(product)).thenReturn(productResponseEntity);
+		
+	    RequestBuilder requestBuilder = MockMvcRequestBuilders
+	            .post("/api/v1/products")
+	            .accept(MediaType.APPLICATION_JSON)
+	            .content(json)
+	            .contentType(MediaType.APPLICATION_JSON);
+
+	    MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+
+	    MockHttpServletResponse response = result.getResponse();
+
+	    assertEquals(HttpStatus.OK.value(), response.getStatus());
 	}
 
 	@Test
@@ -98,13 +192,11 @@ public class ProductServiceApplicationTests extends AbstractTest {
 		product.setPublishedAt(new Date());
 		product.setCreatedAt(new Date());
 		product.setWorkflowStatus("new");
-		ResponseEntity<ProductResponse> productResponse = new ResponseEntity<ProductResponse>(HttpStatus.OK);
-		productResponse.getBody().setItem(product);
-		when(productController.getProductDetails(1L)).thenReturn(productResponse);
-		mockMvc.perform(MockMvcRequestBuilders.get("/products/1")).andExpect(status().isOk()).andExpect(status().isOk())
-				.andExpect(jsonPath("$.product.sellerId").value(1));
-		;
-		;
+		ProductResponse productResponse= new ProductResponse().setItem(product);
+		ResponseEntity<ProductResponse> productResponseEntity = new ResponseEntity<ProductResponse>(productResponse,HttpStatus.OK);
+		when(productController.getProductDetails(1L)).thenReturn(productResponseEntity);
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/products/1")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.item.sellerId").value(1));
 	}
 
 	@Test
@@ -130,13 +222,13 @@ public class ProductServiceApplicationTests extends AbstractTest {
 		product.setPublishedAt(new Date());
 		product.setCreatedAt(new Date());
 		product.setWorkflowStatus("new");
-		ResponseEntity<ProductResponse> productResponse = new ResponseEntity<ProductResponse>(HttpStatus.OK);
-		productResponse.getBody().setItem(product);
-		when(productController.getProductDetails(1L)).thenReturn(productResponse);
+		ProductResponse productResponse= new ProductResponse().setItem(product);
+		ResponseEntity<ProductResponse> productResponseEntity = new ResponseEntity<ProductResponse>(productResponse,HttpStatus.OK);
+		when(productController.getProductDetails(1L)).thenReturn(productResponseEntity);
 
 		String json = mapToJson(product);
 		mockMvc.perform(
-				MockMvcRequestBuilders.put("/products/1").contentType(MediaType.APPLICATION_JSON_VALUE).content(json))
+				MockMvcRequestBuilders.put("/api/v1/products/1").contentType(MediaType.APPLICATION_JSON_VALUE).content(json))
 				.andExpect(status().isOk());
 		;
 	}
@@ -153,11 +245,11 @@ public class ProductServiceApplicationTests extends AbstractTest {
 		productPrice.setRange("10-105");
 		product.setProductPrice(productPrice);
 		String json = mapToJson(product);
-		ResponseEntity<ProductResponse> productResponse = new ResponseEntity<ProductResponse>(HttpStatus.CREATED);
-		productResponse.getBody().setItem(product);
+		ProductResponse productResponse= new ProductResponse().setItem(product);
+		ResponseEntity<ProductResponse> productResponseEntity = new ResponseEntity<ProductResponse>(productResponse,HttpStatus.OK);
 		when(productPriceController.saveProductPrice(1L, productPrice))
-				.thenReturn(productResponse);
-		mockMvc.perform(MockMvcRequestBuilders.post("/products/1/price").contentType(MediaType.APPLICATION_JSON_VALUE)
+				.thenReturn(productResponseEntity);
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/products/1/price").contentType(MediaType.APPLICATION_JSON_VALUE)
 				.content(json));
 	}
 
@@ -189,11 +281,11 @@ public class ProductServiceApplicationTests extends AbstractTest {
 		productPrice.setRange("10-105");
 		product.setProductPrice(productPrice);
 
-		ResponseEntity<ProductResponse> productResponse = new ResponseEntity<ProductResponse>(HttpStatus.OK);
-		productResponse.getBody().setItem(product);
-		when(productPriceController.getProductPrice(1L)).thenReturn(productResponse);
-		mockMvc.perform(MockMvcRequestBuilders.get("/products/1/price")).andExpect(status().isOk())
-				.andExpect(jsonPath("$.product.productPrice.min").value(10.90));
+		ProductResponse productResponse= new ProductResponse().setItem(product);
+		ResponseEntity<ProductResponse> productResponseEntity = new ResponseEntity<ProductResponse>(productResponse,HttpStatus.OK);
+		when(productPriceController.getProductPrice(1L)).thenReturn(productResponseEntity);
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/products/1/price")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.item.productPrice.min").value(10.90));
 		;
 	}
 
